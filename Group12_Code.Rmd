@@ -1,0 +1,341 @@
+---
+title: "Group 12 Project"
+output: pdf_document
+---
+
+## INTRODUCTION
+
+```{r}
+# Load Relevant Libraries
+
+install.packages("dplyr")
+install.packages("modeest")
+install.packages("corrplot")
+install.packages("psych")
+install.packages("kableExtra")
+install.packages("e1071")
+install.packages("tidyr")
+install.packages("ggplot2")
+library("ggplot2")
+library("e1071")
+library(dplyr)
+library(modeest)
+library(corrplot)
+
+
+
+
+
+```
+```{r}
+# Importing Data File into R studio
+
+house_price <- read.csv("Datafile.csv")
+house_price <- na.omit(house_price)
+
+```
+
+
+
+
+
+
+
+
+
+## 2.1 SUMMARY STATISTICS
+```{r}
+# To find the structure of the data provided
+str(house_price)
+
+```
+```{r}
+
+# To look at a complete summary of the data we will use the summary function
+summary(house_price)
+```
+
+```{r}
+# Now we only extract two columns from the complete data and put it into another variable
+house_price2 <- house_price[, c("Price", "Land.Size..SQM.")]
+
+```
+
+
+```{r}
+# Now finding Summary Statistics for only two Variables'
+str(house_price2)
+```
+
+```{r}
+summary(house_price2)
+```
+## 2.1 (Continued) MEASURE OF CENTRAL TENDENCY
+
+```{r}
+# Calculate the descriptive statistics for 'price' and 'landSize'
+calculate_stats <- function(data, variable) {
+  list(
+    Mean = mean(data[[variable]], na.rm = TRUE),
+    Median = median(data[[variable]], na.rm = TRUE),
+    Variance = var(data[[variable]], na.rm = TRUE),
+    Std_Deviation = sd(data[[variable]], na.rm = TRUE),
+    Skewness = skewness(data[[variable]], na.rm = TRUE)
+  )
+}
+
+price_stats <- calculate_stats(house_price, "Price")
+landSize_stats <- calculate_stats(house_price, "Land.Size..SQM.")
+
+
+
+# Print the results
+print("Statistics for 'price':")
+print(price_stats)
+```
+```{r}
+library(psych)
+library(kableExtra)
+
+describe(house_price)%>%
+kable()%>%
+kable_styling(bootstrap_options = c("striped"))
+```
+
+
+## 2.2 Histograms and Distibution Shapes
+
+```{r}
+
+# Create a histogram for House_Price
+hist(house_price2$Price, main = "House Price Distribution", xlab = "House Price")
+```
+```{r}
+# Create a histogram for LandSizes
+hist(house_price2$Land.Size..SQM, main = "Land Size Distribution", xlab = "Land Size")
+```
+
+
+
+```{r}
+# Describe the shape of the distribution (skewness)
+house_price_skewness <- skewness(house_price2$Price)
+cat("Skewness for House Price:", house_price_skewness, "\n")
+
+```
+```{r}
+
+# Create a density plot of your data (replace my_data with your actual data)
+plot(density(house_price2$Price), main = "Skewness of Price", xlab="Price")
+```
+
+
+
+
+```{r}
+# Describe the shape of the distribution (skewness)
+Land_Size_skewness <- skewness(house_price2$Land.Size..SQM)
+cat("Skewness for Land Size:", house_price_skewness, "\n")
+
+```
+
+
+```{r}
+
+
+# Create a density plot of your data (replace my_data with your actual data)
+plot(density(house_price2$Land.Size..SQM), main = "Skewness of Land Size", xlab="Land Size")
+```
+
+
+## 2.3 Confidence Intervals
+
+```{r}
+# Assuming your data frame is named "df"
+# Calculate the 90 percent confidence interval for House_Price
+price_ci <- t.test(house_price2$Price, conf.level = 0.90)$conf.int
+price_ci
+
+```
+```{r}
+price_ci <- t.test(house_price$Age.of.House, conf.level = 0.90)$conf.int
+price_ci
+```
+
+## 2.4 SCATTERPLOTS AND RELATIONSHIPS
+
+```{r}
+
+cor_matrix <- cor(house_price[,0:8])
+
+corrplot(cor_matrix, method = "ellipse")
+pairs(house_price[,0:8])
+
+```
+
+```{r}
+
+# Scatter plot for House_Price vs. Land_Size
+plot(
+  house_price$Land.Size..SQM.,
+  house_price$Price,
+  xlab = "Land Size",
+  ylab = "House Price",
+  main = "House Price vs. Land Size",
+  col = as.factor(house_price$Suburb)  # Use colors based on Suburb
+)
+
+legend(
+  "topright",  # Position of the legend (you can adjust it)
+  legend = unique(house_price$Suburb),  # Suburb categories in the legend
+  col = unique(as.factor(house_price$Suburb)),  # Colors for each Suburb
+  pch = 1,  # Point character (you can customize this)
+  title = "Suburb"  # Legend title
+)
+
+```
+```{r}
+# Scatter plot for House_Price vs. Number_of_Bedrooms
+plot(house_price$Price, house_price$No..of.Bedroom, 
+     xlab = "House Price", ylab = "Number of Bedrooms",
+     main = "House Price vs. Number of Bedrooms")
+```
+```{r}
+#Scatter plot for House_Price vs. Age_of_House
+plot(house_price$Price,house_price$Age.of.House, 
+     xlab = "House Price", ylab = "Age of House",
+     main = "House Price vs. Age of House")
+```
+
+```{r}
+# Calculate correlations between House_Price and independent variables
+
+cor_land_size <- cor(house_price$Price, house_price$Land.Size..SQM.)
+cor_bedrooms <- cor(house_price$Price, house_price$No..of.Bedroom)
+cor_bathroom <- cor(house_price$Price, house_price$No..of.Bathroom)
+cor_carspace <- cor(house_price$Price, house_price$Car.Space)
+cor_primary <- cor(house_price$Price, house_price$Distance.to.Primary.School..KM.)
+cor_secondary <- cor(house_price$Price, house_price$Distance.to.Secondary.School..KM.)
+cor_age<- cor(house_price$Price, house_price$Age.of.House)
+```
+
+
+```{r}
+# Interpret correlation coefficients
+
+cat("Correlation with Land Size:", cor_land_size, "\n")
+cat("Correlation with Number of Bedrooms:", cor_bedrooms, "\n")
+cat("Correlation with Number of Bathrooms:", cor_bathroom, "\n")
+cat("Correlation with Car Spaces:", cor_carspace, "\n")
+cat("Correlation with Distance to Primary School (KM):", cor_primary, "\n")
+cat("Correlation with Distance to Secondary School (KM):", cor_secondary, "\n")
+cat("Correlation with Age of House:", cor_age, "\n")
+```
+```{r}
+ggplot(data = house_price, aes(x = Suburb, y = Price)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(x = "Suburb", y = "House Price") +
+  facet_wrap(~ Suburb, scales = "free")
+```
+
+
+## 2.5 Multiple Regression Model 
+
+```{r}
+
+# Create two dummy variables (need only two dummy for three categories)
+house_price$dummy_inglewood <- ifelse(house_price$Suburb == "Inglewood", 1, 0)
+house_price$dummy_dunsborough <- ifelse(house_price$Suburb == "DUNSBOROUGH", 1, 0)
+house_price$dummy_bullcreek <- ifelse(house_price$Suburb == "BULL CREEK", 1, 0)
+
+house_price3 <- select(house_price, !c(Address,Suburb))
+
+```
+
+```{r}
+full_model <- lm(Price ~ ., data=house_price3)
+```
+
+```{r}
+str(house_price3)
+```
+
+
+```{r}
+summary(full_model)
+
+```
+```{r}
+anova(full_model)
+```
+
+
+
+```{r}
+coefficients <- coef(full_model)
+coefficients
+```
+
+
+
+
+```{r}
+cat("Multiple Regression Equation:\n")
+cat("Price =", round(coefficients[1], 2), "+", sep = "")
+for (i in 2:length(coefficients)) {
+  cat(round(coefficients[i], 2), "*", names(coefficients)[i], "+", sep = " ")
+}
+cat("\n")
+
+
+```
+
+## 2.6 REDUCED FORM REGRESSION MODEL
+
+```{r}
+p_values <- summary(full_model)$coef[, "Pr(>|t|)"]
+
+# Set the significance level (e.g., 0.05)
+significance_level <- 0.05
+
+# Identify significant variables
+significant_variables <- names(coefficients[p_values < significance_level])
+
+
+significant_variables
+
+
+reduced_model <- lm(Price ~ Land.Size..SQM. + No..of.Bathroom + Distance.to.Secondary.School..KM. + dummy_dunsborough + dummy_inglewood, data = house_price)
+
+summary(reduced_model)
+
+```
+
+
+## CONFIDENCE INTERVALS
+
+```{r}
+conf_intervals <- confint(reduced_model, level = 0.95)
+print(conf_intervals)
+```
+
+
+## Prediction
+```{r}
+new_data <- data.frame(
+  Land.Size..SQM. = 271,  # The prorperty was based on 271 m^2
+  No..of.Bathroom = 2,    # It has only 2 bathrooms
+  Distance.to.Secondary.School..KM. = 0.94,  # Distance from nearest secondaryu school is 0.94
+  dummy_dunsborough = 0,  # Not in dunsborough so 0
+  dummy_inglewood = 1  # Available in Inlglewood hence 1
+)
+
+
+
+predicted_price <- predict(reduced_model, newdata = new_data)
+print(predicted_price)
+
+```
+
+
