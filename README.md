@@ -1,4 +1,4 @@
-# Perth House Price Prediction (ECOM5002)
+# Perth House Price Prediction 
 
 ## Overview
 This repository contains a comprehensive econometric modeling and statistical forecasting project conducted as part of the **ECOM5002: Business Quantitative Analysis** unit at Curtin University. The project involved building predictive models for residential house prices in **three Perth suburbs**: Inglewood, Dunsborough, and Bull Creek.
