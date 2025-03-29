@@ -65,11 +65,6 @@ Leveraging **R programming**, we applied statistical techniques including descri
 
 ---
 
-## Authors
-**Group 12 – Curtin University (ECOM5002)**  
-- Syed Muhammad Ahmed Zaidi (20972008)  
-- Mohammad Adil Jan Malik (21320394)  
-- Umair Sattar (21361924)
 
 ---
 
